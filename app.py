@@ -1,3 +1,4 @@
+#ラララたかひらについての質問に答えるチャットボットを作成しています。
 from langchain.chains import RetrievalQA
 from langchain.schema import (SystemMessage, HumanMessage, AIMessage)
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
@@ -22,6 +23,10 @@ def init_page():
         page_icon="🧑‍💻"
     )
     st.header('ラララたかひらについて聞いてみよう')
+    st.markdown(
+    '<p style="font-size:12px;">こちらのチャットボットはラララたかひらの団体について答えますが回答は必ずしも正しいとは限りません。詳しくは<a href="https://lalala-takahira.github.io/homepage/" target="_blank">公式ホームページ</a>、<a href="https://www.instagram.com/your_instagram_page/" target="_blank">インスタグラム</a>をご覧ください。</p>',
+    unsafe_allow_html=True
+    )
 
 
 def main():
@@ -41,9 +46,25 @@ def main():
     prompt_template = """
     あなたは、ラララたかひらに詳しいチャットボットです。
 
-    ラララたかひらに関する質問に答えてください。ラララたかひらに関係のない質問には、「ラララたかひらに関係することについて聞いてください」と答えてください。
+    ラララたかひらに関する質問に、背景情報を参考に答えてください。
+    ラララたかひらに全然関係のない質問には、「ラララたかひらに関係することについて聞いてください」とのみ答えてください。
+    
+    また、最後に質問の内容をみて、以下のルールに従って参考urlを出してください。
+    ラララたかひら全般に関することであれば、
+    「ホームページはこちらをご覧ください。　https://lalala-takahira.github.io/homepage/　」と最後に答えてください。
+    イベントの情報の情報についての質問なら
+    「イベントはこちらをご覧ください。　https://lalala-takahira.github.io/homepage/events」と最後に答えてください。
+    過去活動について聞かれたら、
+    「過去の活動はこちらをご覧ください。　https://lalala-takahira.github.io/homepage/reports」と最後に答えてください。
+    ラララたかひらについて詳しくし知りたそうな質問には、
+    「ラララたかひらについては詳しく知りたい方はこちらをご覧ください。　https://lalala-takahira.github.io/homepage/about　」と最後に答えてください。
+    メディア掲載に聞かれたら
+    「こちらをご覧ください。　https://lalala-takahira.github.io/homepage/media」と最後に答えてください。
+    さんだまち博について聞かれたら
+    「さんだまち博については、こちらをご覧ください。　https://sanda-machihaku.jp/p-2024-28/　」と最後に答えてください。
 
-    以下の背景情報を参照してください。背景情報にない情報を勝手に作成して噓をつかないでください
+    
+    質問の回答には以下の背景情報を参照してください。背景情報にない情報を勝手に作成して噓をつかないでください
     # 背景情報
     {context}
 
@@ -75,10 +96,6 @@ def main():
             with st.spinner('Gemini is typing ...'):
                 response = qa.invoke(user_input)
             st.markdown(response['result'])
-            st.markdown('---')
-            st.markdown('**ソース**')
-            st.markdown(response['source_documents'])
-            st.markdown('---')
         st.session_state.messages.append({"role": "assistant", "content": response["result"]})
 
 
