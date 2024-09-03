@@ -19,7 +19,7 @@ def load_db(embeddings):
 
 def init_page():
     st.set_page_config(
-        page_title='Geminiを活用したRAGアプリケーション',
+        page_title='ラララたかひらチャットボット',
         page_icon="🧑‍💻"
     )
     st.header('ラララたかひらについて聞いてみよう')
