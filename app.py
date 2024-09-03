@@ -24,7 +24,7 @@ def init_page():
     )
     st.header('ラララたかひらについて聞いてみよう')
     st.markdown(
-    '<p style="font-size:12px;">こちらのチャットボットはラララたかひらの団体について答えますが回答は必ずしも正しいとは限りません。詳しくは<a href="https://lalala-takahira.github.io/homepage/" target="_blank">公式ホームページ</a>、<a href="https://www.instagram.com/your_instagram_page/" target="_blank">インスタグラム</a>をご覧ください。</p>',
+    '<p style="font-size:12px;">こちらのチャットボットはラララたかひらの団体について答えますが回答は必ずしも正しいとは限りません。詳しくは<a href="https://lalala-takahira.github.io/homepage/" target="_blank">公式ホームページ</a>、<a href="https://www.instagram.com/lalala_takahira/" target="_blank">インスタグラム</a>をご覧ください。</p>',
     unsafe_allow_html=True
     )
 
