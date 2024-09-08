@@ -81,6 +81,8 @@ def main():
         chain_type_kwargs={"prompt": PROMPT}# システムプロンプトを追加
     )
 
+    if "messages" not in st.session_state:
+      st.session_state.messages = []
     # 入力文字数の制限を設定
     max_length = 100
     
