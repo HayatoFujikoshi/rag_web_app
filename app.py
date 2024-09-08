@@ -81,23 +81,32 @@ def main():
         chain_type_kwargs={"prompt": PROMPT}# システムプロンプトを追加
     )
 
-    if "messages" not in st.session_state:
-      st.session_state.messages = []
-    if user_input := st.chat_input('質問しよう！'):
-        # 以前のチャットログを表示
-        for message in st.session_state.messages:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-        print(user_input)
-        with st.chat_message('user'):
-            st.markdown(user_input)
-        st.session_state.messages.append({"role": "user", "content": user_input})
-        with st.chat_message('assistant'):
-            with st.spinner('Gemini is typing ...'):
-                response = qa.invoke(user_input)
-            st.markdown(response['result'])
-        st.session_state.messages.append({"role": "assistant", "content": response["result"]})
+    # 入力文字数の制限を設定
+    max_length = 100
+    
+    # ユーザーの入力
+    user_input = st.chat_input('質問しよう！')
 
+    # 入力がある場合の処理
+    if user_input:
+        char_count = len(user_input)
+
+        # 100文字を超えた場合の警告
+        if char_count > max_length:
+            st.warning(f'入力は{max_length}文字以内にしてください。現在の文字数: {char_count}')
+        else:
+            # 以前のチャットログを表示
+            for message in st.session_state.messages:
+                with st.chat_message(message["role"]):
+                    st.markdown(message["content"])
+            with st.chat_message('user'):
+                st.markdown(user_input)
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            with st.chat_message('assistant'):
+                with st.spinner('回答を取得中...'):
+                    response = qa.invoke(user_input)
+                st.markdown(response['result'])
+            st.session_state.messages.append({"role": "assistant", "content": response["result"]})
 
 if __name__ == "__main__":
-  main()
+    main()
