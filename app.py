@@ -37,38 +37,23 @@ def main():
     init_page()
 
     llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         temperature=0.0,
-        max_retries=2,
+        max_retries=5,
     )
 
     # オリジナルのSystem Instructionを定義する
     prompt_template = """
-    あなたは、ラララたかひらに詳しいチャットボットです。
+    あなたは、「ラララたかひら」という団体のリーダーです。
+    以下の「背景情報」を参考に、質問に対して団体の人間になりきって、質問に回答してくだい。
 
-    ラララたかひらに関する質問に、背景情報を参考に答えてください。
-    ラララたかひらに全然関係のない質問には、「ラララたかひらに関係することについて聞いてください」とのみ答えてください。
-    
-    また、最後に質問の内容をみて、以下のルールに従って参考urlを出してください。
-    ラララたかひら全般に関することであれば、
-    「ホームページはこちらをご覧ください。　https://lalala-takahira.github.io/homepage/　」と最後に答えてください。
-    イベントの情報の情報についての質問なら
-    「イベントはこちらをご覧ください。　https://lalala-takahira.github.io/homepage/events」と最後に答えてください。
-    過去活動について聞かれたら、
-    「過去の活動はこちらをご覧ください。　https://lalala-takahira.github.io/homepage/reports」と最後に答えてください。
-    ラララたかひらについて詳しくし知りたそうな質問には、
-    「ラララたかひらについては詳しく知りたい方はこちらをご覧ください。　https://lalala-takahira.github.io/homepage/about　」と最後に答えてください。
-    メディア掲載に聞かれたら
-    「こちらをご覧ください。　https://lalala-takahira.github.io/homepage/media」と最後に答えてください。
-    さんだまち博について聞かれたら
-    「さんだまち博については、こちらをご覧ください。　https://sanda-machihaku.jp/p-2024-28/　」と最後に答えてください。
+    ラララたかひらに全く関係のない質問と思われる質問に関しては、「すみませんが、ラララたかひらに関係することについて聞いてください」と答えてください。
 
-    
-    質問の回答には以下の背景情報を参照してください。背景情報にない情報を勝手に作成して噓をつかないでください
+    以下の背景情報を参照してください。情報がなければ、「分からないです。詳しくはホームページをご覧くださいと答えてください」
     # 背景情報
     {context}
 
-    #質問
+    # 質問
     {question}"""
     PROMPT = PromptTemplate(
         template=prompt_template, input_variables=["context", "question"]
@@ -82,12 +67,30 @@ def main():
     )
 
     if "messages" not in st.session_state:
-      st.session_state.messages = []
+        st.session_state.messages = []
+
+    # 質問テンプレートのリスト
+    question_templates = [
+        "ラララたかひらはどんな活動をしていますか？",
+        "過去の活動について教えてください。",
+        "ラララたかひらに参加するにはどうすればいいですか？",
+        "ラララたかひらの活動場所はどこですか？",
+        "ラララたかひらはどんなメンバーがいますか？",
+        "ラララたかひらの活動目的は？",
+    ]
+
+    # ユーザーが選択できる質問テンプレート
+    selected_question = st.selectbox("質問テンプレート", ["（テンプレートを使用しない）"] + question_templates)
+
     # 入力文字数の制限を設定
     max_length = 100
-    
+
     # ユーザーの入力
-    user_input = st.chat_input('質問しよう！')
+    user_input = st.chat_input("質問しよう！")
+
+    # テンプレートを選択した場合、その質問を user_input に設定
+    if selected_question != "（テンプレートを使用しない）" and not user_input:
+        user_input = selected_question
 
     # 入力がある場合の処理
     if user_input:
@@ -95,19 +98,20 @@ def main():
 
         # 100文字を超えた場合の警告
         if char_count > max_length:
-            st.warning(f'入力は{max_length}文字以内にしてください。現在の文字数: {char_count}')
+            st.warning(f"入力は{max_length}文字以内にしてください。現在の文字数: {char_count}")
         else:
             # 以前のチャットログを表示
             for message in st.session_state.messages:
                 with st.chat_message(message["role"]):
                     st.markdown(message["content"])
-            with st.chat_message('user'):
+            with st.chat_message("user"):
                 st.markdown(user_input)
             st.session_state.messages.append({"role": "user", "content": user_input})
-            with st.chat_message('assistant'):
-                with st.spinner('回答を取得中...'):
+
+            with st.chat_message("assistant"):
+                with st.spinner("考え中..."):
                     response = qa.invoke(user_input)
-                st.markdown(response['result'])
+                st.markdown(response["result"])
             st.session_state.messages.append({"role": "assistant", "content": response["result"]})
 
 if __name__ == "__main__":
